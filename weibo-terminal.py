@@ -17,6 +17,8 @@ AUTH_URL = 'https://api.weibo.com/oauth2/authorize'
 USERID = None
 PASSED = None 
 
+
+IMPORTANT = ['小媛在努力_FightForCAS','豆子要排除干扰忠于初心']
 def Weibo():
     client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
     referer_url = client.get_authorize_url()
@@ -67,8 +69,9 @@ if __name__ == "__main__":
             break
         except:
             continue
-    wait_time = 5
+    wait_time = 3
     weibo_list = []
+    old_weibo_list = set()
     while True:
         text = client.statuses.friends_timeline.get(count = 100)
         for weibo in text['statuses']:
@@ -78,10 +81,22 @@ if __name__ == "__main__":
             name = weibo['user']['screen_name']
             post = weibo['text']
             weibo_list.append((name,post,tm))
+        
+        weibo_pipe = weibo_list[:]
+        weibo_list = set(weibo_list)
+        weibo_list = weibo_list.difference(old_weibo_list)
+        if not weibo_list:
+            sleep(10)
+        wait_time += (100 / len(weibo_list) - 2)
+        if wait_time > 10:
+            wait_time -= 2
+        old_weibo_list = set(weibo_pipe)
+        weibo_list = weibo_pipe
         weibo_list = sorted(weibo_list, key = lambda weibo: weibo[2], reverse=True)
         while weibo_list:
             name, post, tm = weibo_list.pop()
-            print '%8s' % name
-            print '   %s' % post
-            print strftime('%X',localtime(tm))
+            print '%s' % name
+            print '   %s\n' % post,strftime('%X',localtime(tm))
+            if name.encode('utf-8') in IMPORTANT:
+                sleep(100)
             sleep(wait_time)
