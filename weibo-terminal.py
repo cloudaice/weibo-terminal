@@ -62,41 +62,45 @@ def Weibo():
 
 if __name__ == "__main__":
     while True:
-        USERID = raw_input("输入微博帐户:")
-        PASSWD = getpass.getpass("输入密码")
+        USERID = raw_input("输入登录ID:")
+        PASSWD = getpass.getpass("输入密码:")
         try:
             client = Weibo()
             break
         except:
             continue
-    wait_time = 3
+    wait_time = 0.1
     weibo_list = []
-    old_weibo_list = set()
+    user_info = client.users__show(screen_name = 'cloudaice')
+    uid = client.account__get_uid()['uid']
+    count = 100
     while True:
-        text = client.statuses.friends_timeline.get(count = 100)
+        text = client.statuses.friends_timeline.get(count = count)
         for weibo in text['statuses']:
+            in_text = ''
             tm = weibo['created_at']
             tm = tm.replace('+0800 ','')
             tm = int(mktime(strptime(tm)))
             name = weibo['user']['screen_name']
             post = weibo['text']
-            weibo_list.append((name,post,tm))
-        
-        weibo_pipe = weibo_list[:]
-        weibo_list = set(weibo_list)
-        weibo_list = weibo_list.difference(old_weibo_list)
-        if not weibo_list:
-            sleep(10)
-        wait_time += (100 / len(weibo_list) - 2)
-        if wait_time > 10:
-            wait_time -= 2
-        old_weibo_list = set(weibo_pipe)
-        weibo_list = weibo_pipe
-        weibo_list = sorted(weibo_list, key = lambda weibo: weibo[2], reverse=True)
+            if 'retweeted_status' in weibo:
+                in_text = weibo['retweeted_status']['text']
+            weibo_list.append((name,post,tm, in_text or ''))
+        weibo_list = sorted(weibo_list, key = lambda d: d[2], reverse = True)
         while weibo_list:
-            name, post, tm = weibo_list.pop()
+            name, post, tm, in_text = weibo_list.pop()
+            print strftime('%X',localtime(tm))
             print '%s' % name
-            print '   %s\n' % post,strftime('%X',localtime(tm))
+            print '   %s' % post
+            if in_text:
+                print '      %s\n' % in_text 
             if name.encode('utf-8') in IMPORTANT:
-                sleep(100)
+                sleep(10)
             sleep(wait_time)
+        while True:
+            notice = client.remind__unread_count(uid = uid)
+            if notice['status']:
+                count = notice['status']
+                break
+            print 'no news'
+            sleep(5)
