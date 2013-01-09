@@ -60,6 +60,8 @@ def Weibo():
     client.set_access_token(access_token, expires_in)
     return client
 
+
+
 if __name__ == "__main__":
     while True:
         USERID = raw_input("输入登录ID:")
@@ -69,11 +71,13 @@ if __name__ == "__main__":
             break
         except:
             continue
-    wait_time = 0.1
+    wait_time = 3
     weibo_list = []
+    love_weibos = []
     user_info = client.users__show(screen_name = 'cloudaice')
     uid = client.account__get_uid()['uid']
     count = 100
+
     while True:
         text = client.statuses.friends_timeline.get(count = count)
         for weibo in text['statuses']:
@@ -95,12 +99,17 @@ if __name__ == "__main__":
             if in_text:
                 print '      %s\n' % in_text 
             if name.encode('utf-8') in IMPORTANT:
+                love_weibos.append((name, post, tm, in_text))
                 sleep(10)
             sleep(wait_time)
-        while True:
+        notice = client.remind__unread_count(uid = uid)
+        while not  notice['status']:
             notice = client.remind__unread_count(uid = uid)
-            if notice['status']:
-                count = notice['status']
-                break
-            print 'no news'
-            sleep(5)
+            for name, post, tm, in_text in love_weibos:
+                print strftime('%X',localtime(tm))
+                print '%s' % name
+                print '   %s' % post
+                if in_text:
+                    print '      %s\n' % in_text 
+                sleep(wait_time)
+        count = notice['status']
