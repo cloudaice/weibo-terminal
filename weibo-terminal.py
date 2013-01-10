@@ -103,8 +103,7 @@ if __name__ == "__main__":
                 sleep(10)
             sleep(wait_time)
         notice = client.remind__unread_count(uid = uid)
-        while not  notice['status']:
-            notice = client.remind__unread_count(uid = uid)
+        while  notice['status'] < 5:
             for name, post, tm, in_text in love_weibos:
                 print strftime('%X',localtime(tm))
                 print '%s' % name
@@ -112,4 +111,5 @@ if __name__ == "__main__":
                 if in_text:
                     print '      %s\n' % in_text 
                 sleep(wait_time)
+            notice = client.remind__unread_count(uid = uid)
         count = notice['status']
