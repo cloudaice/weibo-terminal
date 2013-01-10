@@ -111,5 +111,10 @@ if __name__ == "__main__":
                 if in_text:
                     print '      %s\n' % in_text 
                 sleep(wait_time)
-            notice = client.remind__unread_count(uid = uid)
+            try:
+                notice = client.remind__unread_count(uid = uid)
+            except ValueError,e:
+                print notice
+                print type(notice)
+                exit()
         count = notice['status']
