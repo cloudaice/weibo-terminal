@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 from weibo import APIClient
+from weibo import APIError
 import urllib2
 import urllib
 import json
@@ -50,7 +51,7 @@ def Weibo():
         resp = urllib2.urlopen(req)
         #print "callback url is : %s" % resp.geturl()
         code = resp.geturl()[-32:]
-    except Exception, e:
+    except APIError, e:
         print e
 
     client = APIClient(app_key=APP_KEY, app_secret=APP_SECRET, redirect_uri=CALLBACK_URL)
@@ -69,14 +70,15 @@ if __name__ == "__main__":
         try:
             client = Weibo()
             break
-        except:
+        except APIError, e:
             continue
-    wait_time = 3
+            
+    wait_time = 0.1
     weibo_list = []
     love_weibos = []
     user_info = client.users__show(screen_name = 'cloudaice')
     uid = client.account__get_uid()['uid']
-    count = 100
+    count = 10
 
     while True:
         text = client.statuses.friends_timeline.get(count = count)
@@ -100,10 +102,10 @@ if __name__ == "__main__":
                 print '      %s\n' % in_text 
             if name.encode('utf-8') in IMPORTANT:
                 love_weibos.append((name, post, tm, in_text))
-                sleep(10)
+                sleep(1)
             sleep(wait_time)
         notice = client.remind__unread_count(uid = uid)
-        while  notice['status'] < 5:
+        while notice['status'] < 2:
             for name, post, tm, in_text in love_weibos:
                 print strftime('%X',localtime(tm))
                 print '%s' % name
@@ -111,10 +113,5 @@ if __name__ == "__main__":
                 if in_text:
                     print '      %s\n' % in_text 
                 sleep(wait_time)
-            try:
-                notice = client.remind__unread_count(uid = uid)
-            except ValueError,e:
-                print notice
-                print type(notice)
-                exit()
+            notice = client.remind__unread_count(uid = uid)
         count = notice['status']
