@@ -73,7 +73,7 @@ if __name__ == "__main__":
         except APIError, e:
             continue
             
-    wait_time = 0.1
+    wait_time = 3
     weibo_list = []
     love_weibos = []
     user_info = client.users__show(screen_name = 'cloudaice')
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                 print '      %s\n' % in_text 
             if name.encode('utf-8') in IMPORTANT:
                 love_weibos.append((name, post, tm, in_text))
-                sleep(1)
+                sleep(5)
             sleep(wait_time)
         notice = client.remind__unread_count(uid = uid)
         while notice['status'] < 2:

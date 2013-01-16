@@ -110,9 +110,9 @@ def _http_upload(url, authorization=None, **kw):
     return _http_call(url, _HTTP_UPLOAD, authorization, **kw)
 
 def _read_body(obj):
-    print 'obj:',obj
-    print 'type:',type(obj)
-    print 'dir:',dir(obj)
+    #print 'obj:',obj
+    #print 'type:',type(obj)
+    #print 'dir:',dir(obj)
     using_gzip = obj.headers.get('Content-Encoding', '')=='gzip'
     body = obj.read()
     if using_gzip:
@@ -120,9 +120,9 @@ def _read_body(obj):
         gzipper = gzip.GzipFile(fileobj=StringIO(body))
         fcontent = gzipper.read()
         gzipper.close()
-        print 'body:',fcontent
+        #print 'body:',fcontent
         return fcontent
-    print 'body:',body
+    #print 'body:',body
     return body
 
 def _http_call(the_url, method, authorization, **kw):
