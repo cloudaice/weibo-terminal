@@ -70,4 +70,4 @@ if __name__ == "__main__":
             except:
                 notice = client.remind__unread_count(uid = uid)
 
-        count = notice['status']
+        count = notice['status'] + 10
